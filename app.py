@@ -1,41 +1,40 @@
-print("✅ Python app.py is running from Jenkins pipeline!")
-from flask import Flask, jsonify
 import sys
 
-app = Flask(__name__)
 DATA_FILE = "data.txt"
 
-def read_data():
+def read_file():
+    """Reads lines from the file and returns them as a list."""
     try:
         with open(DATA_FILE, "r") as file:
             return file.readlines()
     except FileNotFoundError:
-        return ["data.txt not found"]
+        return ["[ERROR] File not found: data.txt"]
 
-@app.route('/')
-def home():
-    return "Welcome to the Flask API!"
+def show_file():
+    """Prints the contents of the file."""
+    lines = read_file()
+    for line in lines:
+        print(line.strip())
 
-@app.route('/data')
-def get_data():
-    lines = read_data()
-    return jsonify(lines)
+def count_lines():
+    """Prints number of lines in the file."""
+    lines = read_file()
+    print(f"Line count: {len(lines)}")
+
+def help_message():
+    print("Usage:")
+    print("  python3 app.py --show     # Show file contents")
+    print("  python3 app.py --count    # Show line count")
+    print("  python3 app.py            # Default action")
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        # No arguments: run the web app
-        app.run(host="0.0.0.0", port=5000)
+        print("No command given. Showing help:")
+        help_message()
     elif sys.argv[1] == "--show":
-        print("Reading file:")
-        for line in read_data():
-            print(line.strip())
+        show_file()
     elif sys.argv[1] == "--count":
-        print("Line count:", len(read_data()))
+        count_lines()
     else:
-        print("Unknown command")
-        print("Usage:")
-        print("  python3 app.py            # Run Flask web server")
-        print("  python3 app.py --show     # Print file contents")
-        print("  python3 app.py --count    # Count lines in file")
-
-
+        print(f"Unknown argument: {sys.argv[1]}")
+        help_message()
